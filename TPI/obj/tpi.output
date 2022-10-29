@@ -1,0 +1,3244 @@
+Rules useless in parser due to conflicts
+
+    3 line: /* empty */
+
+   95 listaSentencias: listaSentencias sentencia
+
+   97 listaDeclaraciones: listaDeclaraciones declaracionVarSimples
+
+
+State 1 conflicts: 24 shift/reduce
+State 3 conflicts: 1 shift/reduce, 7 reduce/reduce
+State 6 conflicts: 1 shift/reduce
+State 59 conflicts: 1 shift/reduce, 5 reduce/reduce
+State 65 conflicts: 6 reduce/reduce
+State 95 conflicts: 1 shift/reduce
+State 114 conflicts: 23 reduce/reduce
+State 116 conflicts: 23 reduce/reduce
+State 163 conflicts: 1 shift/reduce
+
+
+Grammar
+
+    0 $accept: input $end
+
+    1 input: /* empty */
+    2      | input line
+
+    3 line: /* empty */
+    4     | declaracion
+    5     | sentencia
+
+    6 declaracion: declaracionDeFuncion
+    7            | declaracionVarSimples
+
+    8 declaracionDeFuncion: VOID ID '(' argsFuncion ')' ';'
+    9                     | tipoDato ID '(' argsFuncion ')' ';'
+   10                     | VOID ID '(' argsFuncion ')' sentenciaCompuesta
+   11                     | tipoDato ID '(' argsFuncion ')' sentenciaCompuesta
+
+   12 argsFuncion: argumentoA
+   13            | argumentoA ',' argsFuncion
+
+   14 argumentoA: /* empty */
+   15           | TIPO_DATO ID
+   16           | TIPO_DATO
+
+   17 declaracionVarSimples: tipoDato listaVarSimples finDeclaracionVariable
+
+   18 finDeclaracionVariable: ';'
+   19                       | error
+
+   20 tipoDato: TIPO_DATO puntero
+   21         | error
+
+   22 listaVarSimples: unaVarSimple
+   23                | listaVarSimples ',' unaVarSimple
+
+   24 unaVarSimple: ID arreglo inicializacion
+   25             | error
+
+   26 inicializacion: /* empty */
+   27               | '=' expresion
+
+   28 arreglo: /* empty */
+   29        | arreglo '[' constante ']'
+
+   30 puntero: /* empty */
+   31        | puntero '*'
+
+   32 expresion: expAsignacion
+   33          | error
+
+   34 expAsignacion: expCondicional
+   35              | expUnaria operAsignacion expAsignacion
+
+   36 operAsignacion: '='
+   37               | OPERADOR_ASIGNACION
+
+   38 expCondicional: expOr
+   39               | expOr '?' expresion ':' expCondicional
+
+   40 expOr: expAnd
+   41      | expOr OR expAnd
+
+   42 expAnd: expIgualdad
+   43       | expAnd AND expIgualdad
+
+   44 expIgualdad: expRelacional
+   45            | expIgualdad IGUAL_O_DISTINTO expRelacional
+
+   46 expRelacional: expAditiva
+   47              | expRelacional MAYOR_O_IGUAL expAditiva
+   48              | expRelacional MENOR_O_IGUAL expAditiva
+
+   49 expAditiva: expMultiplicativa
+   50           | expAditiva '+' expMultiplicativa
+   51           | expAditiva '-' expMultiplicativa
+
+   52 expMultiplicativa: expUnaria
+   53                  | expMultiplicativa '*' expUnaria
+   54                  | expMultiplicativa '/' expUnaria
+   55                  | expMultiplicativa '%' expUnaria
+
+   56 expUnaria: expPostFijo
+   57          | INCREMENTO_O_DECREMENTO expUnaria
+   58          | expUnaria INCREMENTO_O_DECREMENTO
+   59          | operUnario expUnaria
+   60          | SIZEOF aperturaParentesis TIPO_DATO cierreParentesis
+
+   61 operUnario: '&'
+   62           | '*'
+   63           | '-'
+   64           | '!'
+
+   65 expPostFijo: expPrimaria
+   66            | expPostFijo '[' expresion ']'
+   67            | expPostFijo aperturaParentesis listaArgumentos cierreParentesis
+
+   68 listaArgumentos: expAsignacion
+   69                | listaArgumentos ',' expAsignacion
+
+   70 expPrimaria: ID
+   71            | constante
+   72            | LITERAL_CADENA
+   73            | aperturaParentesis expresion cierreParentesis
+   74            | usoDeFuncion
+   75            | error
+
+   76 usoDeFuncion: ID aperturaParentesis listaParametros cierreParentesis
+
+   77 listaParametros: /* empty */
+   78                | parametro
+   79                | parametro ',' listaParametros
+
+   80 parametro: constante
+   81          | LITERAL_CADENA
+
+   82 constante: CARACTER
+   83          | ENTERO
+   84          | REAL
+
+   85 sentencia: sentenciaCompuesta
+   86          | sentenciaDeExpresion
+   87          | sentenciaDeControl
+   88          | sentenciaDeIteracion
+   89          | sentenciaDeSalto
+
+   90 sentenciaCompuesta: '{' sentencias_y_declaraciones '}'
+
+   91 sentencias_y_declaraciones: /* empty */
+   92                           | listaDeclaraciones sentencias_y_declaraciones
+   93                           | listaSentencias sentencias_y_declaraciones
+
+   94 listaSentencias: sentencia
+   95                | listaSentencias sentencia
+
+   96 listaDeclaraciones: declaracionVarSimples
+   97                   | listaDeclaraciones declaracionVarSimples
+
+   98 sentenciaDeExpresion: expresion ';'
+   99                     | ';'
+  100                     | error ';'
+  101                     | error
+
+  102 sentenciaDeControl: IF aperturaParentesis expresion cierreParentesis sentencia
+  103                   | IF aperturaParentesis expresion cierreParentesis sentencia ELSE sentencia
+  104                   | SWITCH aperturaParentesis expresion cierreParentesis sentencia
+
+  105 sentenciaDeIteracion: WHILE aperturaParentesis expresion cierreParentesis sentencia
+  106                     | DO sentencia WHILE aperturaParentesis expresion cierreParentesis ';'
+  107                     | FOR aperturaParentesis unaVarSimple ';' expresion ';' expresion cierreParentesis sentencia
+
+  108 aperturaParentesis: '('
+
+  109 cierreParentesis: ')'
+
+  110 sentenciaDeSalto: RETURN ';'
+  111                 | RETURN expresion ';'
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+'!' (33) 64
+'%' (37) 55
+'&' (38) 61
+'(' (40) 8 9 10 11 108
+')' (41) 8 9 10 11 109
+'*' (42) 31 53 62
+'+' (43) 50
+',' (44) 13 23 69 79
+'-' (45) 51 63
+'/' (47) 54
+':' (58) 39
+';' (59) 8 9 18 98 99 100 106 107 110 111
+'=' (61) 27 36
+'?' (63) 39
+'[' (91) 29 66
+']' (93) 29 66
+'{' (123) 90
+'}' (125) 90
+error (256) 19 21 25 33 75 100 101
+ENTERO (258) 83
+REAL (259) 84
+ID (260) 8 9 10 11 15 24 70 76
+TIPO_DATO (261) 15 16 20 60
+IF (262) 102 103
+ELSE (263) 103
+SWITCH (264) 104
+WHILE (265) 105 106
+DO (266) 106
+FOR (267) 107
+MAYOR_O_IGUAL (268) 47
+MENOR_O_IGUAL (269) 48
+IGUAL_O_DISTINTO (270) 45
+INCREMENTO_O_DECREMENTO (271) 57 58
+AND (272) 43
+OR (273) 41
+SIZEOF (274) 60
+RETURN (275) 110 111
+OPERADOR_ASIGNACION (276) 37
+VOID (277) 8 10
+CARACTER (278) 82
+LITERAL_CADENA (279) 72 81
+
+
+Nonterminals, with rules where they appear
+
+$accept (43)
+    on left: 0
+input (44)
+    on left: 1 2, on right: 0 2
+line (45)
+    on left: 3 4 5, on right: 2
+declaracion (46)
+    on left: 6 7, on right: 4
+declaracionDeFuncion (47)
+    on left: 8 9 10 11, on right: 6
+argsFuncion (48)
+    on left: 12 13, on right: 8 9 10 11 13
+argumentoA (49)
+    on left: 14 15 16, on right: 12 13
+declaracionVarSimples (50)
+    on left: 17, on right: 7 96 97
+finDeclaracionVariable (51)
+    on left: 18 19, on right: 17
+tipoDato (52)
+    on left: 20 21, on right: 9 11 17
+listaVarSimples (53)
+    on left: 22 23, on right: 17 23
+unaVarSimple (54)
+    on left: 24 25, on right: 22 23 107
+inicializacion (55)
+    on left: 26 27, on right: 24
+arreglo (56)
+    on left: 28 29, on right: 24 29
+puntero (57)
+    on left: 30 31, on right: 20 31
+expresion (58)
+    on left: 32 33, on right: 27 39 66 73 98 102 103 104 105 106 107
+    111
+expAsignacion (59)
+    on left: 34 35, on right: 32 35 68 69
+operAsignacion (60)
+    on left: 36 37, on right: 35
+expCondicional (61)
+    on left: 38 39, on right: 34 39
+expOr (62)
+    on left: 40 41, on right: 38 39 41
+expAnd (63)
+    on left: 42 43, on right: 40 41 43
+expIgualdad (64)
+    on left: 44 45, on right: 42 43 45
+expRelacional (65)
+    on left: 46 47 48, on right: 44 45 47 48
+expAditiva (66)
+    on left: 49 50 51, on right: 46 47 48 50 51
+expMultiplicativa (67)
+    on left: 52 53 54 55, on right: 49 50 51 53 54 55
+expUnaria (68)
+    on left: 56 57 58 59 60, on right: 35 52 53 54 55 57 58 59
+operUnario (69)
+    on left: 61 62 63 64, on right: 59
+expPostFijo (70)
+    on left: 65 66 67, on right: 56 66 67
+listaArgumentos (71)
+    on left: 68 69, on right: 67 69
+expPrimaria (72)
+    on left: 70 71 72 73 74 75, on right: 65
+usoDeFuncion (73)
+    on left: 76, on right: 74
+listaParametros (74)
+    on left: 77 78 79, on right: 76 79
+parametro (75)
+    on left: 80 81, on right: 78 79
+constante (76)
+    on left: 82 83 84, on right: 29 71 80
+sentencia (77)
+    on left: 85 86 87 88 89, on right: 5 94 95 102 103 104 105 106
+    107
+sentenciaCompuesta (78)
+    on left: 90, on right: 10 11 85
+sentencias_y_declaraciones (79)
+    on left: 91 92 93, on right: 90 92 93
+listaSentencias (80)
+    on left: 94 95, on right: 93 95
+listaDeclaraciones (81)
+    on left: 96 97, on right: 92 97
+sentenciaDeExpresion (82)
+    on left: 98 99 100 101, on right: 86
+sentenciaDeControl (83)
+    on left: 102 103 104, on right: 87
+sentenciaDeIteracion (84)
+    on left: 105 106 107, on right: 88
+aperturaParentesis (85)
+    on left: 108, on right: 60 67 73 76 102 103 104 105 106 107
+cierreParentesis (86)
+    on left: 109, on right: 60 67 73 76 102 103 104 105 106 107
+sentenciaDeSalto (87)
+    on left: 110 111, on right: 89
+
+
+state 0
+
+    0 $accept: . input $end
+
+    $default  reduce using rule 1 (input)
+
+    input  go to state 1
+
+
+state 1
+
+    0 $accept: input . $end
+    2 input: input . line
+
+    $end                     shift, and go to state 2
+    error                    shift, and go to state 3
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    TIPO_DATO                shift, and go to state 7
+    IF                       shift, and go to state 8
+    SWITCH                   shift, and go to state 9
+    WHILE                    shift, and go to state 10
+    DO                       shift, and go to state 11
+    FOR                      shift, and go to state 12
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    RETURN                   shift, and go to state 15
+    VOID                     shift, and go to state 16
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+    ';'                      shift, and go to state 24
+    '{'                      shift, and go to state 25
+
+    $end                     [reduce using rule 3 (line)]
+    error                    [reduce using rule 3 (line)]
+    ENTERO                   [reduce using rule 3 (line)]
+    REAL                     [reduce using rule 3 (line)]
+    ID                       [reduce using rule 3 (line)]
+    TIPO_DATO                [reduce using rule 3 (line)]
+    IF                       [reduce using rule 3 (line)]
+    SWITCH                   [reduce using rule 3 (line)]
+    WHILE                    [reduce using rule 3 (line)]
+    DO                       [reduce using rule 3 (line)]
+    FOR                      [reduce using rule 3 (line)]
+    INCREMENTO_O_DECREMENTO  [reduce using rule 3 (line)]
+    SIZEOF                   [reduce using rule 3 (line)]
+    RETURN                   [reduce using rule 3 (line)]
+    VOID                     [reduce using rule 3 (line)]
+    CARACTER                 [reduce using rule 3 (line)]
+    LITERAL_CADENA           [reduce using rule 3 (line)]
+    '-'                      [reduce using rule 3 (line)]
+    '*'                      [reduce using rule 3 (line)]
+    '&'                      [reduce using rule 3 (line)]
+    '!'                      [reduce using rule 3 (line)]
+    '('                      [reduce using rule 3 (line)]
+    ';'                      [reduce using rule 3 (line)]
+    '{'                      [reduce using rule 3 (line)]
+
+    line                   go to state 26
+    declaracion            go to state 27
+    declaracionDeFuncion   go to state 28
+    declaracionVarSimples  go to state 29
+    tipoDato               go to state 30
+    expresion              go to state 31
+    expAsignacion          go to state 32
+    expCondicional         go to state 33
+    expOr                  go to state 34
+    expAnd                 go to state 35
+    expIgualdad            go to state 36
+    expRelacional          go to state 37
+    expAditiva             go to state 38
+    expMultiplicativa      go to state 39
+    expUnaria              go to state 40
+    operUnario             go to state 41
+    expPostFijo            go to state 42
+    expPrimaria            go to state 43
+    usoDeFuncion           go to state 44
+    constante              go to state 45
+    sentencia              go to state 46
+    sentenciaCompuesta     go to state 47
+    sentenciaDeExpresion   go to state 48
+    sentenciaDeControl     go to state 49
+    sentenciaDeIteracion   go to state 50
+    aperturaParentesis     go to state 51
+    sentenciaDeSalto       go to state 52
+
+
+state 2
+
+    0 $accept: input $end .
+
+    $default  accept
+
+
+state 3
+
+   21 tipoDato: error .
+   33 expresion: error .
+   75 expPrimaria: error .
+  100 sentenciaDeExpresion: error . ';'
+  101                     | error .
+
+    ';'  shift, and go to state 53
+
+    error                    reduce using rule 21 (tipoDato)
+    error                    [reduce using rule 101 (sentenciaDeExpresion)]
+    ID                       reduce using rule 21 (tipoDato)
+    ID                       [reduce using rule 101 (sentenciaDeExpresion)]
+    MAYOR_O_IGUAL            reduce using rule 75 (expPrimaria)
+    MENOR_O_IGUAL            reduce using rule 75 (expPrimaria)
+    IGUAL_O_DISTINTO         reduce using rule 75 (expPrimaria)
+    INCREMENTO_O_DECREMENTO  reduce using rule 75 (expPrimaria)
+    INCREMENTO_O_DECREMENTO  [reduce using rule 101 (sentenciaDeExpresion)]
+    AND                      reduce using rule 75 (expPrimaria)
+    OR                       reduce using rule 75 (expPrimaria)
+    OPERADOR_ASIGNACION      reduce using rule 75 (expPrimaria)
+    '='                      reduce using rule 75 (expPrimaria)
+    '+'                      reduce using rule 75 (expPrimaria)
+    '-'                      reduce using rule 75 (expPrimaria)
+    '-'                      [reduce using rule 101 (sentenciaDeExpresion)]
+    '*'                      reduce using rule 75 (expPrimaria)
+    '*'                      [reduce using rule 101 (sentenciaDeExpresion)]
+    '/'                      reduce using rule 75 (expPrimaria)
+    '%'                      reduce using rule 75 (expPrimaria)
+    '('                      reduce using rule 75 (expPrimaria)
+    '('                      [reduce using rule 101 (sentenciaDeExpresion)]
+    ';'                      [reduce using rule 33 (expresion)]
+    ';'                      [reduce using rule 75 (expPrimaria)]
+    ';'                      [reduce using rule 101 (sentenciaDeExpresion)]
+    '['                      reduce using rule 75 (expPrimaria)
+    '?'                      reduce using rule 75 (expPrimaria)
+    $default                 reduce using rule 101 (sentenciaDeExpresion)
+
+
+state 4
+
+   83 constante: ENTERO .
+
+    $default  reduce using rule 83 (constante)
+
+
+state 5
+
+   84 constante: REAL .
+
+    $default  reduce using rule 84 (constante)
+
+
+state 6
+
+   70 expPrimaria: ID .
+   76 usoDeFuncion: ID . aperturaParentesis listaParametros cierreParentesis
+
+    '('  shift, and go to state 23
+
+    '('       [reduce using rule 70 (expPrimaria)]
+    $default  reduce using rule 70 (expPrimaria)
+
+    aperturaParentesis  go to state 54
+
+
+state 7
+
+   20 tipoDato: TIPO_DATO . puntero
+
+    $default  reduce using rule 30 (puntero)
+
+    puntero  go to state 55
+
+
+state 8
+
+  102 sentenciaDeControl: IF . aperturaParentesis expresion cierreParentesis sentencia
+  103                   | IF . aperturaParentesis expresion cierreParentesis sentencia ELSE sentencia
+
+    '('  shift, and go to state 23
+
+    aperturaParentesis  go to state 56
+
+
+state 9
+
+  104 sentenciaDeControl: SWITCH . aperturaParentesis expresion cierreParentesis sentencia
+
+    '('  shift, and go to state 23
+
+    aperturaParentesis  go to state 57
+
+
+state 10
+
+  105 sentenciaDeIteracion: WHILE . aperturaParentesis expresion cierreParentesis sentencia
+
+    '('  shift, and go to state 23
+
+    aperturaParentesis  go to state 58
+
+
+state 11
+
+  106 sentenciaDeIteracion: DO . sentencia WHILE aperturaParentesis expresion cierreParentesis ';'
+
+    error                    shift, and go to state 59
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    IF                       shift, and go to state 8
+    SWITCH                   shift, and go to state 9
+    WHILE                    shift, and go to state 10
+    DO                       shift, and go to state 11
+    FOR                      shift, and go to state 12
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    RETURN                   shift, and go to state 15
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+    ';'                      shift, and go to state 24
+    '{'                      shift, and go to state 25
+
+    expresion             go to state 31
+    expAsignacion         go to state 32
+    expCondicional        go to state 33
+    expOr                 go to state 34
+    expAnd                go to state 35
+    expIgualdad           go to state 36
+    expRelacional         go to state 37
+    expAditiva            go to state 38
+    expMultiplicativa     go to state 39
+    expUnaria             go to state 40
+    operUnario            go to state 41
+    expPostFijo           go to state 42
+    expPrimaria           go to state 43
+    usoDeFuncion          go to state 44
+    constante             go to state 45
+    sentencia             go to state 60
+    sentenciaCompuesta    go to state 47
+    sentenciaDeExpresion  go to state 48
+    sentenciaDeControl    go to state 49
+    sentenciaDeIteracion  go to state 50
+    aperturaParentesis    go to state 51
+    sentenciaDeSalto      go to state 52
+
+
+state 12
+
+  107 sentenciaDeIteracion: FOR . aperturaParentesis unaVarSimple ';' expresion ';' expresion cierreParentesis sentencia
+
+    '('  shift, and go to state 23
+
+    aperturaParentesis  go to state 61
+
+
+state 13
+
+   57 expUnaria: INCREMENTO_O_DECREMENTO . expUnaria
+
+    error                    shift, and go to state 62
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+
+    expUnaria           go to state 63
+    operUnario          go to state 41
+    expPostFijo         go to state 42
+    expPrimaria         go to state 43
+    usoDeFuncion        go to state 44
+    constante           go to state 45
+    aperturaParentesis  go to state 51
+
+
+state 14
+
+   60 expUnaria: SIZEOF . aperturaParentesis TIPO_DATO cierreParentesis
+
+    '('  shift, and go to state 23
+
+    aperturaParentesis  go to state 64
+
+
+state 15
+
+  110 sentenciaDeSalto: RETURN . ';'
+  111                 | RETURN . expresion ';'
+
+    error                    shift, and go to state 65
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+    ';'                      shift, and go to state 66
+
+    expresion           go to state 67
+    expAsignacion       go to state 32
+    expCondicional      go to state 33
+    expOr               go to state 34
+    expAnd              go to state 35
+    expIgualdad         go to state 36
+    expRelacional       go to state 37
+    expAditiva          go to state 38
+    expMultiplicativa   go to state 39
+    expUnaria           go to state 40
+    operUnario          go to state 41
+    expPostFijo         go to state 42
+    expPrimaria         go to state 43
+    usoDeFuncion        go to state 44
+    constante           go to state 45
+    aperturaParentesis  go to state 51
+
+
+state 16
+
+    8 declaracionDeFuncion: VOID . ID '(' argsFuncion ')' ';'
+   10                     | VOID . ID '(' argsFuncion ')' sentenciaCompuesta
+
+    ID  shift, and go to state 68
+
+
+state 17
+
+   82 constante: CARACTER .
+
+    $default  reduce using rule 82 (constante)
+
+
+state 18
+
+   72 expPrimaria: LITERAL_CADENA .
+
+    $default  reduce using rule 72 (expPrimaria)
+
+
+state 19
+
+   63 operUnario: '-' .
+
+    $default  reduce using rule 63 (operUnario)
+
+
+state 20
+
+   62 operUnario: '*' .
+
+    $default  reduce using rule 62 (operUnario)
+
+
+state 21
+
+   61 operUnario: '&' .
+
+    $default  reduce using rule 61 (operUnario)
+
+
+state 22
+
+   64 operUnario: '!' .
+
+    $default  reduce using rule 64 (operUnario)
+
+
+state 23
+
+  108 aperturaParentesis: '(' .
+
+    $default  reduce using rule 108 (aperturaParentesis)
+
+
+state 24
+
+   99 sentenciaDeExpresion: ';' .
+
+    $default  reduce using rule 99 (sentenciaDeExpresion)
+
+
+state 25
+
+   90 sentenciaCompuesta: '{' . sentencias_y_declaraciones '}'
+
+    error                    shift, and go to state 3
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    TIPO_DATO                shift, and go to state 7
+    IF                       shift, and go to state 8
+    SWITCH                   shift, and go to state 9
+    WHILE                    shift, and go to state 10
+    DO                       shift, and go to state 11
+    FOR                      shift, and go to state 12
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    RETURN                   shift, and go to state 15
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+    ';'                      shift, and go to state 24
+    '{'                      shift, and go to state 25
+
+    '}'  reduce using rule 91 (sentencias_y_declaraciones)
+
+    declaracionVarSimples       go to state 69
+    tipoDato                    go to state 70
+    expresion                   go to state 31
+    expAsignacion               go to state 32
+    expCondicional              go to state 33
+    expOr                       go to state 34
+    expAnd                      go to state 35
+    expIgualdad                 go to state 36
+    expRelacional               go to state 37
+    expAditiva                  go to state 38
+    expMultiplicativa           go to state 39
+    expUnaria                   go to state 40
+    operUnario                  go to state 41
+    expPostFijo                 go to state 42
+    expPrimaria                 go to state 43
+    usoDeFuncion                go to state 44
+    constante                   go to state 45
+    sentencia                   go to state 71
+    sentenciaCompuesta          go to state 47
+    sentencias_y_declaraciones  go to state 72
+    listaSentencias             go to state 73
+    listaDeclaraciones          go to state 74
+    sentenciaDeExpresion        go to state 48
+    sentenciaDeControl          go to state 49
+    sentenciaDeIteracion        go to state 50
+    aperturaParentesis          go to state 51
+    sentenciaDeSalto            go to state 52
+
+
+state 26
+
+    2 input: input line .
+
+    $default  reduce using rule 2 (input)
+
+
+state 27
+
+    4 line: declaracion .
+
+    $default  reduce using rule 4 (line)
+
+
+state 28
+
+    6 declaracion: declaracionDeFuncion .
+
+    $default  reduce using rule 6 (declaracion)
+
+
+state 29
+
+    7 declaracion: declaracionVarSimples .
+
+    $default  reduce using rule 7 (declaracion)
+
+
+state 30
+
+    9 declaracionDeFuncion: tipoDato . ID '(' argsFuncion ')' ';'
+   11                     | tipoDato . ID '(' argsFuncion ')' sentenciaCompuesta
+   17 declaracionVarSimples: tipoDato . listaVarSimples finDeclaracionVariable
+
+    error  shift, and go to state 75
+    ID     shift, and go to state 76
+
+    listaVarSimples  go to state 77
+    unaVarSimple     go to state 78
+
+
+state 31
+
+   98 sentenciaDeExpresion: expresion . ';'
+
+    ';'  shift, and go to state 79
+
+
+state 32
+
+   32 expresion: expAsignacion .
+
+    $default  reduce using rule 32 (expresion)
+
+
+state 33
+
+   34 expAsignacion: expCondicional .
+
+    $default  reduce using rule 34 (expAsignacion)
+
+
+state 34
+
+   38 expCondicional: expOr .
+   39               | expOr . '?' expresion ':' expCondicional
+   41 expOr: expOr . OR expAnd
+
+    OR   shift, and go to state 80
+    '?'  shift, and go to state 81
+
+    $default  reduce using rule 38 (expCondicional)
+
+
+state 35
+
+   40 expOr: expAnd .
+   43 expAnd: expAnd . AND expIgualdad
+
+    AND  shift, and go to state 82
+
+    $default  reduce using rule 40 (expOr)
+
+
+state 36
+
+   42 expAnd: expIgualdad .
+   45 expIgualdad: expIgualdad . IGUAL_O_DISTINTO expRelacional
+
+    IGUAL_O_DISTINTO  shift, and go to state 83
+
+    $default  reduce using rule 42 (expAnd)
+
+
+state 37
+
+   44 expIgualdad: expRelacional .
+   47 expRelacional: expRelacional . MAYOR_O_IGUAL expAditiva
+   48              | expRelacional . MENOR_O_IGUAL expAditiva
+
+    MAYOR_O_IGUAL  shift, and go to state 84
+    MENOR_O_IGUAL  shift, and go to state 85
+
+    $default  reduce using rule 44 (expIgualdad)
+
+
+state 38
+
+   46 expRelacional: expAditiva .
+   50 expAditiva: expAditiva . '+' expMultiplicativa
+   51           | expAditiva . '-' expMultiplicativa
+
+    '+'  shift, and go to state 86
+    '-'  shift, and go to state 87
+
+    $default  reduce using rule 46 (expRelacional)
+
+
+state 39
+
+   49 expAditiva: expMultiplicativa .
+   53 expMultiplicativa: expMultiplicativa . '*' expUnaria
+   54                  | expMultiplicativa . '/' expUnaria
+   55                  | expMultiplicativa . '%' expUnaria
+
+    '*'  shift, and go to state 88
+    '/'  shift, and go to state 89
+    '%'  shift, and go to state 90
+
+    $default  reduce using rule 49 (expAditiva)
+
+
+state 40
+
+   35 expAsignacion: expUnaria . operAsignacion expAsignacion
+   52 expMultiplicativa: expUnaria .
+   58 expUnaria: expUnaria . INCREMENTO_O_DECREMENTO
+
+    INCREMENTO_O_DECREMENTO  shift, and go to state 91
+    OPERADOR_ASIGNACION      shift, and go to state 92
+    '='                      shift, and go to state 93
+
+    $default  reduce using rule 52 (expMultiplicativa)
+
+    operAsignacion  go to state 94
+
+
+state 41
+
+   59 expUnaria: operUnario . expUnaria
+
+    error                    shift, and go to state 62
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+
+    expUnaria           go to state 95
+    operUnario          go to state 41
+    expPostFijo         go to state 42
+    expPrimaria         go to state 43
+    usoDeFuncion        go to state 44
+    constante           go to state 45
+    aperturaParentesis  go to state 51
+
+
+state 42
+
+   56 expUnaria: expPostFijo .
+   66 expPostFijo: expPostFijo . '[' expresion ']'
+   67            | expPostFijo . aperturaParentesis listaArgumentos cierreParentesis
+
+    '('  shift, and go to state 23
+    '['  shift, and go to state 96
+
+    $default  reduce using rule 56 (expUnaria)
+
+    aperturaParentesis  go to state 97
+
+
+state 43
+
+   65 expPostFijo: expPrimaria .
+
+    $default  reduce using rule 65 (expPostFijo)
+
+
+state 44
+
+   74 expPrimaria: usoDeFuncion .
+
+    $default  reduce using rule 74 (expPrimaria)
+
+
+state 45
+
+   71 expPrimaria: constante .
+
+    $default  reduce using rule 71 (expPrimaria)
+
+
+state 46
+
+    5 line: sentencia .
+
+    $default  reduce using rule 5 (line)
+
+
+state 47
+
+   85 sentencia: sentenciaCompuesta .
+
+    $default  reduce using rule 85 (sentencia)
+
+
+state 48
+
+   86 sentencia: sentenciaDeExpresion .
+
+    $default  reduce using rule 86 (sentencia)
+
+
+state 49
+
+   87 sentencia: sentenciaDeControl .
+
+    $default  reduce using rule 87 (sentencia)
+
+
+state 50
+
+   88 sentencia: sentenciaDeIteracion .
+
+    $default  reduce using rule 88 (sentencia)
+
+
+state 51
+
+   73 expPrimaria: aperturaParentesis . expresion cierreParentesis
+
+    error                    shift, and go to state 65
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+
+    expresion           go to state 98
+    expAsignacion       go to state 32
+    expCondicional      go to state 33
+    expOr               go to state 34
+    expAnd              go to state 35
+    expIgualdad         go to state 36
+    expRelacional       go to state 37
+    expAditiva          go to state 38
+    expMultiplicativa   go to state 39
+    expUnaria           go to state 40
+    operUnario          go to state 41
+    expPostFijo         go to state 42
+    expPrimaria         go to state 43
+    usoDeFuncion        go to state 44
+    constante           go to state 45
+    aperturaParentesis  go to state 51
+
+
+state 52
+
+   89 sentencia: sentenciaDeSalto .
+
+    $default  reduce using rule 89 (sentencia)
+
+
+state 53
+
+  100 sentenciaDeExpresion: error ';' .
+
+    $default  reduce using rule 100 (sentenciaDeExpresion)
+
+
+state 54
+
+   76 usoDeFuncion: ID aperturaParentesis . listaParametros cierreParentesis
+
+    ENTERO          shift, and go to state 4
+    REAL            shift, and go to state 5
+    CARACTER        shift, and go to state 17
+    LITERAL_CADENA  shift, and go to state 99
+
+    $default  reduce using rule 77 (listaParametros)
+
+    listaParametros  go to state 100
+    parametro        go to state 101
+    constante        go to state 102
+
+
+state 55
+
+   20 tipoDato: TIPO_DATO puntero .
+   31 puntero: puntero . '*'
+
+    '*'  shift, and go to state 103
+
+    $default  reduce using rule 20 (tipoDato)
+
+
+state 56
+
+  102 sentenciaDeControl: IF aperturaParentesis . expresion cierreParentesis sentencia
+  103                   | IF aperturaParentesis . expresion cierreParentesis sentencia ELSE sentencia
+
+    error                    shift, and go to state 65
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+
+    expresion           go to state 104
+    expAsignacion       go to state 32
+    expCondicional      go to state 33
+    expOr               go to state 34
+    expAnd              go to state 35
+    expIgualdad         go to state 36
+    expRelacional       go to state 37
+    expAditiva          go to state 38
+    expMultiplicativa   go to state 39
+    expUnaria           go to state 40
+    operUnario          go to state 41
+    expPostFijo         go to state 42
+    expPrimaria         go to state 43
+    usoDeFuncion        go to state 44
+    constante           go to state 45
+    aperturaParentesis  go to state 51
+
+
+state 57
+
+  104 sentenciaDeControl: SWITCH aperturaParentesis . expresion cierreParentesis sentencia
+
+    error                    shift, and go to state 65
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+
+    expresion           go to state 105
+    expAsignacion       go to state 32
+    expCondicional      go to state 33
+    expOr               go to state 34
+    expAnd              go to state 35
+    expIgualdad         go to state 36
+    expRelacional       go to state 37
+    expAditiva          go to state 38
+    expMultiplicativa   go to state 39
+    expUnaria           go to state 40
+    operUnario          go to state 41
+    expPostFijo         go to state 42
+    expPrimaria         go to state 43
+    usoDeFuncion        go to state 44
+    constante           go to state 45
+    aperturaParentesis  go to state 51
+
+
+state 58
+
+  105 sentenciaDeIteracion: WHILE aperturaParentesis . expresion cierreParentesis sentencia
+
+    error                    shift, and go to state 65
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+
+    expresion           go to state 106
+    expAsignacion       go to state 32
+    expCondicional      go to state 33
+    expOr               go to state 34
+    expAnd              go to state 35
+    expIgualdad         go to state 36
+    expRelacional       go to state 37
+    expAditiva          go to state 38
+    expMultiplicativa   go to state 39
+    expUnaria           go to state 40
+    operUnario          go to state 41
+    expPostFijo         go to state 42
+    expPrimaria         go to state 43
+    usoDeFuncion        go to state 44
+    constante           go to state 45
+    aperturaParentesis  go to state 51
+
+
+state 59
+
+   33 expresion: error .
+   75 expPrimaria: error .
+  100 sentenciaDeExpresion: error . ';'
+  101                     | error .
+
+    ';'  shift, and go to state 53
+
+    MAYOR_O_IGUAL            reduce using rule 75 (expPrimaria)
+    MENOR_O_IGUAL            reduce using rule 75 (expPrimaria)
+    IGUAL_O_DISTINTO         reduce using rule 75 (expPrimaria)
+    INCREMENTO_O_DECREMENTO  reduce using rule 75 (expPrimaria)
+    INCREMENTO_O_DECREMENTO  [reduce using rule 101 (sentenciaDeExpresion)]
+    AND                      reduce using rule 75 (expPrimaria)
+    OR                       reduce using rule 75 (expPrimaria)
+    OPERADOR_ASIGNACION      reduce using rule 75 (expPrimaria)
+    '='                      reduce using rule 75 (expPrimaria)
+    '+'                      reduce using rule 75 (expPrimaria)
+    '-'                      reduce using rule 75 (expPrimaria)
+    '-'                      [reduce using rule 101 (sentenciaDeExpresion)]
+    '*'                      reduce using rule 75 (expPrimaria)
+    '*'                      [reduce using rule 101 (sentenciaDeExpresion)]
+    '/'                      reduce using rule 75 (expPrimaria)
+    '%'                      reduce using rule 75 (expPrimaria)
+    '('                      reduce using rule 75 (expPrimaria)
+    '('                      [reduce using rule 101 (sentenciaDeExpresion)]
+    ';'                      [reduce using rule 33 (expresion)]
+    ';'                      [reduce using rule 75 (expPrimaria)]
+    ';'                      [reduce using rule 101 (sentenciaDeExpresion)]
+    '['                      reduce using rule 75 (expPrimaria)
+    '?'                      reduce using rule 75 (expPrimaria)
+    $default                 reduce using rule 101 (sentenciaDeExpresion)
+
+
+state 60
+
+  106 sentenciaDeIteracion: DO sentencia . WHILE aperturaParentesis expresion cierreParentesis ';'
+
+    WHILE  shift, and go to state 107
+
+
+state 61
+
+  107 sentenciaDeIteracion: FOR aperturaParentesis . unaVarSimple ';' expresion ';' expresion cierreParentesis sentencia
+
+    error  shift, and go to state 75
+    ID     shift, and go to state 108
+
+    unaVarSimple  go to state 109
+
+
+state 62
+
+   75 expPrimaria: error .
+
+    $default  reduce using rule 75 (expPrimaria)
+
+
+state 63
+
+   57 expUnaria: INCREMENTO_O_DECREMENTO expUnaria .
+   58          | expUnaria . INCREMENTO_O_DECREMENTO
+
+    INCREMENTO_O_DECREMENTO  shift, and go to state 91
+
+    $default  reduce using rule 57 (expUnaria)
+
+
+state 64
+
+   60 expUnaria: SIZEOF aperturaParentesis . TIPO_DATO cierreParentesis
+
+    TIPO_DATO  shift, and go to state 110
+
+
+state 65
+
+   33 expresion: error .
+   75 expPrimaria: error .
+
+    error     reduce using rule 33 (expresion)
+    error     [reduce using rule 75 (expPrimaria)]
+    ','       reduce using rule 33 (expresion)
+    ','       [reduce using rule 75 (expPrimaria)]
+    ')'       reduce using rule 33 (expresion)
+    ')'       [reduce using rule 75 (expPrimaria)]
+    ';'       reduce using rule 33 (expresion)
+    ';'       [reduce using rule 75 (expPrimaria)]
+    ']'       reduce using rule 33 (expresion)
+    ']'       [reduce using rule 75 (expPrimaria)]
+    ':'       reduce using rule 33 (expresion)
+    ':'       [reduce using rule 75 (expPrimaria)]
+    $default  reduce using rule 75 (expPrimaria)
+
+
+state 66
+
+  110 sentenciaDeSalto: RETURN ';' .
+
+    $default  reduce using rule 110 (sentenciaDeSalto)
+
+
+state 67
+
+  111 sentenciaDeSalto: RETURN expresion . ';'
+
+    ';'  shift, and go to state 111
+
+
+state 68
+
+    8 declaracionDeFuncion: VOID ID . '(' argsFuncion ')' ';'
+   10                     | VOID ID . '(' argsFuncion ')' sentenciaCompuesta
+
+    '('  shift, and go to state 112
+
+
+state 69
+
+   96 listaDeclaraciones: declaracionVarSimples .
+
+    $default  reduce using rule 96 (listaDeclaraciones)
+
+
+state 70
+
+   17 declaracionVarSimples: tipoDato . listaVarSimples finDeclaracionVariable
+
+    error  shift, and go to state 75
+    ID     shift, and go to state 108
+
+    listaVarSimples  go to state 77
+    unaVarSimple     go to state 78
+
+
+state 71
+
+   94 listaSentencias: sentencia .
+
+    $default  reduce using rule 94 (listaSentencias)
+
+
+state 72
+
+   90 sentenciaCompuesta: '{' sentencias_y_declaraciones . '}'
+
+    '}'  shift, and go to state 113
+
+
+state 73
+
+   93 sentencias_y_declaraciones: listaSentencias . sentencias_y_declaraciones
+   95 listaSentencias: listaSentencias . sentencia
+
+    error                    shift, and go to state 3
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    TIPO_DATO                shift, and go to state 7
+    IF                       shift, and go to state 8
+    SWITCH                   shift, and go to state 9
+    WHILE                    shift, and go to state 10
+    DO                       shift, and go to state 11
+    FOR                      shift, and go to state 12
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    RETURN                   shift, and go to state 15
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+    ';'                      shift, and go to state 24
+    '{'                      shift, and go to state 25
+
+    '}'  reduce using rule 91 (sentencias_y_declaraciones)
+
+    declaracionVarSimples       go to state 69
+    tipoDato                    go to state 70
+    expresion                   go to state 31
+    expAsignacion               go to state 32
+    expCondicional              go to state 33
+    expOr                       go to state 34
+    expAnd                      go to state 35
+    expIgualdad                 go to state 36
+    expRelacional               go to state 37
+    expAditiva                  go to state 38
+    expMultiplicativa           go to state 39
+    expUnaria                   go to state 40
+    operUnario                  go to state 41
+    expPostFijo                 go to state 42
+    expPrimaria                 go to state 43
+    usoDeFuncion                go to state 44
+    constante                   go to state 45
+    sentencia                   go to state 114
+    sentenciaCompuesta          go to state 47
+    sentencias_y_declaraciones  go to state 115
+    listaSentencias             go to state 73
+    listaDeclaraciones          go to state 74
+    sentenciaDeExpresion        go to state 48
+    sentenciaDeControl          go to state 49
+    sentenciaDeIteracion        go to state 50
+    aperturaParentesis          go to state 51
+    sentenciaDeSalto            go to state 52
+
+
+state 74
+
+   92 sentencias_y_declaraciones: listaDeclaraciones . sentencias_y_declaraciones
+   97 listaDeclaraciones: listaDeclaraciones . declaracionVarSimples
+
+    error                    shift, and go to state 3
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    TIPO_DATO                shift, and go to state 7
+    IF                       shift, and go to state 8
+    SWITCH                   shift, and go to state 9
+    WHILE                    shift, and go to state 10
+    DO                       shift, and go to state 11
+    FOR                      shift, and go to state 12
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    RETURN                   shift, and go to state 15
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+    ';'                      shift, and go to state 24
+    '{'                      shift, and go to state 25
+
+    '}'  reduce using rule 91 (sentencias_y_declaraciones)
+
+    declaracionVarSimples       go to state 116
+    tipoDato                    go to state 70
+    expresion                   go to state 31
+    expAsignacion               go to state 32
+    expCondicional              go to state 33
+    expOr                       go to state 34
+    expAnd                      go to state 35
+    expIgualdad                 go to state 36
+    expRelacional               go to state 37
+    expAditiva                  go to state 38
+    expMultiplicativa           go to state 39
+    expUnaria                   go to state 40
+    operUnario                  go to state 41
+    expPostFijo                 go to state 42
+    expPrimaria                 go to state 43
+    usoDeFuncion                go to state 44
+    constante                   go to state 45
+    sentencia                   go to state 71
+    sentenciaCompuesta          go to state 47
+    sentencias_y_declaraciones  go to state 117
+    listaSentencias             go to state 73
+    listaDeclaraciones          go to state 74
+    sentenciaDeExpresion        go to state 48
+    sentenciaDeControl          go to state 49
+    sentenciaDeIteracion        go to state 50
+    aperturaParentesis          go to state 51
+    sentenciaDeSalto            go to state 52
+
+
+state 75
+
+   25 unaVarSimple: error .
+
+    $default  reduce using rule 25 (unaVarSimple)
+
+
+state 76
+
+    9 declaracionDeFuncion: tipoDato ID . '(' argsFuncion ')' ';'
+   11                     | tipoDato ID . '(' argsFuncion ')' sentenciaCompuesta
+   24 unaVarSimple: ID . arreglo inicializacion
+
+    '('  shift, and go to state 118
+
+    $default  reduce using rule 28 (arreglo)
+
+    arreglo  go to state 119
+
+
+state 77
+
+   17 declaracionVarSimples: tipoDato listaVarSimples . finDeclaracionVariable
+   23 listaVarSimples: listaVarSimples . ',' unaVarSimple
+
+    error  shift, and go to state 120
+    ','    shift, and go to state 121
+    ';'    shift, and go to state 122
+
+    finDeclaracionVariable  go to state 123
+
+
+state 78
+
+   22 listaVarSimples: unaVarSimple .
+
+    $default  reduce using rule 22 (listaVarSimples)
+
+
+state 79
+
+   98 sentenciaDeExpresion: expresion ';' .
+
+    $default  reduce using rule 98 (sentenciaDeExpresion)
+
+
+state 80
+
+   41 expOr: expOr OR . expAnd
+
+    error                    shift, and go to state 62
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+
+    expAnd              go to state 124
+    expIgualdad         go to state 36
+    expRelacional       go to state 37
+    expAditiva          go to state 38
+    expMultiplicativa   go to state 39
+    expUnaria           go to state 125
+    operUnario          go to state 41
+    expPostFijo         go to state 42
+    expPrimaria         go to state 43
+    usoDeFuncion        go to state 44
+    constante           go to state 45
+    aperturaParentesis  go to state 51
+
+
+state 81
+
+   39 expCondicional: expOr '?' . expresion ':' expCondicional
+
+    error                    shift, and go to state 65
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+
+    expresion           go to state 126
+    expAsignacion       go to state 32
+    expCondicional      go to state 33
+    expOr               go to state 34
+    expAnd              go to state 35
+    expIgualdad         go to state 36
+    expRelacional       go to state 37
+    expAditiva          go to state 38
+    expMultiplicativa   go to state 39
+    expUnaria           go to state 40
+    operUnario          go to state 41
+    expPostFijo         go to state 42
+    expPrimaria         go to state 43
+    usoDeFuncion        go to state 44
+    constante           go to state 45
+    aperturaParentesis  go to state 51
+
+
+state 82
+
+   43 expAnd: expAnd AND . expIgualdad
+
+    error                    shift, and go to state 62
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+
+    expIgualdad         go to state 127
+    expRelacional       go to state 37
+    expAditiva          go to state 38
+    expMultiplicativa   go to state 39
+    expUnaria           go to state 125
+    operUnario          go to state 41
+    expPostFijo         go to state 42
+    expPrimaria         go to state 43
+    usoDeFuncion        go to state 44
+    constante           go to state 45
+    aperturaParentesis  go to state 51
+
+
+state 83
+
+   45 expIgualdad: expIgualdad IGUAL_O_DISTINTO . expRelacional
+
+    error                    shift, and go to state 62
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+
+    expRelacional       go to state 128
+    expAditiva          go to state 38
+    expMultiplicativa   go to state 39
+    expUnaria           go to state 125
+    operUnario          go to state 41
+    expPostFijo         go to state 42
+    expPrimaria         go to state 43
+    usoDeFuncion        go to state 44
+    constante           go to state 45
+    aperturaParentesis  go to state 51
+
+
+state 84
+
+   47 expRelacional: expRelacional MAYOR_O_IGUAL . expAditiva
+
+    error                    shift, and go to state 62
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+
+    expAditiva          go to state 129
+    expMultiplicativa   go to state 39
+    expUnaria           go to state 125
+    operUnario          go to state 41
+    expPostFijo         go to state 42
+    expPrimaria         go to state 43
+    usoDeFuncion        go to state 44
+    constante           go to state 45
+    aperturaParentesis  go to state 51
+
+
+state 85
+
+   48 expRelacional: expRelacional MENOR_O_IGUAL . expAditiva
+
+    error                    shift, and go to state 62
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+
+    expAditiva          go to state 130
+    expMultiplicativa   go to state 39
+    expUnaria           go to state 125
+    operUnario          go to state 41
+    expPostFijo         go to state 42
+    expPrimaria         go to state 43
+    usoDeFuncion        go to state 44
+    constante           go to state 45
+    aperturaParentesis  go to state 51
+
+
+state 86
+
+   50 expAditiva: expAditiva '+' . expMultiplicativa
+
+    error                    shift, and go to state 62
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+
+    expMultiplicativa   go to state 131
+    expUnaria           go to state 125
+    operUnario          go to state 41
+    expPostFijo         go to state 42
+    expPrimaria         go to state 43
+    usoDeFuncion        go to state 44
+    constante           go to state 45
+    aperturaParentesis  go to state 51
+
+
+state 87
+
+   51 expAditiva: expAditiva '-' . expMultiplicativa
+
+    error                    shift, and go to state 62
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+
+    expMultiplicativa   go to state 132
+    expUnaria           go to state 125
+    operUnario          go to state 41
+    expPostFijo         go to state 42
+    expPrimaria         go to state 43
+    usoDeFuncion        go to state 44
+    constante           go to state 45
+    aperturaParentesis  go to state 51
+
+
+state 88
+
+   53 expMultiplicativa: expMultiplicativa '*' . expUnaria
+
+    error                    shift, and go to state 62
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+
+    expUnaria           go to state 133
+    operUnario          go to state 41
+    expPostFijo         go to state 42
+    expPrimaria         go to state 43
+    usoDeFuncion        go to state 44
+    constante           go to state 45
+    aperturaParentesis  go to state 51
+
+
+state 89
+
+   54 expMultiplicativa: expMultiplicativa '/' . expUnaria
+
+    error                    shift, and go to state 62
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+
+    expUnaria           go to state 134
+    operUnario          go to state 41
+    expPostFijo         go to state 42
+    expPrimaria         go to state 43
+    usoDeFuncion        go to state 44
+    constante           go to state 45
+    aperturaParentesis  go to state 51
+
+
+state 90
+
+   55 expMultiplicativa: expMultiplicativa '%' . expUnaria
+
+    error                    shift, and go to state 62
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+
+    expUnaria           go to state 135
+    operUnario          go to state 41
+    expPostFijo         go to state 42
+    expPrimaria         go to state 43
+    usoDeFuncion        go to state 44
+    constante           go to state 45
+    aperturaParentesis  go to state 51
+
+
+state 91
+
+   58 expUnaria: expUnaria INCREMENTO_O_DECREMENTO .
+
+    $default  reduce using rule 58 (expUnaria)
+
+
+state 92
+
+   37 operAsignacion: OPERADOR_ASIGNACION .
+
+    $default  reduce using rule 37 (operAsignacion)
+
+
+state 93
+
+   36 operAsignacion: '=' .
+
+    $default  reduce using rule 36 (operAsignacion)
+
+
+state 94
+
+   35 expAsignacion: expUnaria operAsignacion . expAsignacion
+
+    error                    shift, and go to state 62
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+
+    expAsignacion       go to state 136
+    expCondicional      go to state 33
+    expOr               go to state 34
+    expAnd              go to state 35
+    expIgualdad         go to state 36
+    expRelacional       go to state 37
+    expAditiva          go to state 38
+    expMultiplicativa   go to state 39
+    expUnaria           go to state 40
+    operUnario          go to state 41
+    expPostFijo         go to state 42
+    expPrimaria         go to state 43
+    usoDeFuncion        go to state 44
+    constante           go to state 45
+    aperturaParentesis  go to state 51
+
+
+state 95
+
+   58 expUnaria: expUnaria . INCREMENTO_O_DECREMENTO
+   59          | operUnario expUnaria .
+
+    INCREMENTO_O_DECREMENTO  shift, and go to state 91
+
+    INCREMENTO_O_DECREMENTO  [reduce using rule 59 (expUnaria)]
+    $default                 reduce using rule 59 (expUnaria)
+
+
+state 96
+
+   66 expPostFijo: expPostFijo '[' . expresion ']'
+
+    error                    shift, and go to state 65
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+
+    expresion           go to state 137
+    expAsignacion       go to state 32
+    expCondicional      go to state 33
+    expOr               go to state 34
+    expAnd              go to state 35
+    expIgualdad         go to state 36
+    expRelacional       go to state 37
+    expAditiva          go to state 38
+    expMultiplicativa   go to state 39
+    expUnaria           go to state 40
+    operUnario          go to state 41
+    expPostFijo         go to state 42
+    expPrimaria         go to state 43
+    usoDeFuncion        go to state 44
+    constante           go to state 45
+    aperturaParentesis  go to state 51
+
+
+state 97
+
+   67 expPostFijo: expPostFijo aperturaParentesis . listaArgumentos cierreParentesis
+
+    error                    shift, and go to state 62
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+
+    expAsignacion       go to state 138
+    expCondicional      go to state 33
+    expOr               go to state 34
+    expAnd              go to state 35
+    expIgualdad         go to state 36
+    expRelacional       go to state 37
+    expAditiva          go to state 38
+    expMultiplicativa   go to state 39
+    expUnaria           go to state 40
+    operUnario          go to state 41
+    expPostFijo         go to state 42
+    listaArgumentos     go to state 139
+    expPrimaria         go to state 43
+    usoDeFuncion        go to state 44
+    constante           go to state 45
+    aperturaParentesis  go to state 51
+
+
+state 98
+
+   73 expPrimaria: aperturaParentesis expresion . cierreParentesis
+
+    ')'  shift, and go to state 140
+
+    cierreParentesis  go to state 141
+
+
+state 99
+
+   81 parametro: LITERAL_CADENA .
+
+    $default  reduce using rule 81 (parametro)
+
+
+state 100
+
+   76 usoDeFuncion: ID aperturaParentesis listaParametros . cierreParentesis
+
+    ')'  shift, and go to state 140
+
+    cierreParentesis  go to state 142
+
+
+state 101
+
+   78 listaParametros: parametro .
+   79                | parametro . ',' listaParametros
+
+    ','  shift, and go to state 143
+
+    $default  reduce using rule 78 (listaParametros)
+
+
+state 102
+
+   80 parametro: constante .
+
+    $default  reduce using rule 80 (parametro)
+
+
+state 103
+
+   31 puntero: puntero '*' .
+
+    $default  reduce using rule 31 (puntero)
+
+
+state 104
+
+  102 sentenciaDeControl: IF aperturaParentesis expresion . cierreParentesis sentencia
+  103                   | IF aperturaParentesis expresion . cierreParentesis sentencia ELSE sentencia
+
+    ')'  shift, and go to state 140
+
+    cierreParentesis  go to state 144
+
+
+state 105
+
+  104 sentenciaDeControl: SWITCH aperturaParentesis expresion . cierreParentesis sentencia
+
+    ')'  shift, and go to state 140
+
+    cierreParentesis  go to state 145
+
+
+state 106
+
+  105 sentenciaDeIteracion: WHILE aperturaParentesis expresion . cierreParentesis sentencia
+
+    ')'  shift, and go to state 140
+
+    cierreParentesis  go to state 146
+
+
+state 107
+
+  106 sentenciaDeIteracion: DO sentencia WHILE . aperturaParentesis expresion cierreParentesis ';'
+
+    '('  shift, and go to state 23
+
+    aperturaParentesis  go to state 147
+
+
+state 108
+
+   24 unaVarSimple: ID . arreglo inicializacion
+
+    $default  reduce using rule 28 (arreglo)
+
+    arreglo  go to state 119
+
+
+state 109
+
+  107 sentenciaDeIteracion: FOR aperturaParentesis unaVarSimple . ';' expresion ';' expresion cierreParentesis sentencia
+
+    ';'  shift, and go to state 148
+
+
+state 110
+
+   60 expUnaria: SIZEOF aperturaParentesis TIPO_DATO . cierreParentesis
+
+    ')'  shift, and go to state 140
+
+    cierreParentesis  go to state 149
+
+
+state 111
+
+  111 sentenciaDeSalto: RETURN expresion ';' .
+
+    $default  reduce using rule 111 (sentenciaDeSalto)
+
+
+state 112
+
+    8 declaracionDeFuncion: VOID ID '(' . argsFuncion ')' ';'
+   10                     | VOID ID '(' . argsFuncion ')' sentenciaCompuesta
+
+    TIPO_DATO  shift, and go to state 150
+
+    $default  reduce using rule 14 (argumentoA)
+
+    argsFuncion  go to state 151
+    argumentoA   go to state 152
+
+
+state 113
+
+   90 sentenciaCompuesta: '{' sentencias_y_declaraciones '}' .
+
+    $default  reduce using rule 90 (sentenciaCompuesta)
+
+
+state 114
+
+   94 listaSentencias: sentencia .
+   95                | listaSentencias sentencia .
+
+    error                    reduce using rule 94 (listaSentencias)
+    error                    [reduce using rule 95 (listaSentencias)]
+    ENTERO                   reduce using rule 94 (listaSentencias)
+    ENTERO                   [reduce using rule 95 (listaSentencias)]
+    REAL                     reduce using rule 94 (listaSentencias)
+    REAL                     [reduce using rule 95 (listaSentencias)]
+    ID                       reduce using rule 94 (listaSentencias)
+    ID                       [reduce using rule 95 (listaSentencias)]
+    TIPO_DATO                reduce using rule 94 (listaSentencias)
+    TIPO_DATO                [reduce using rule 95 (listaSentencias)]
+    IF                       reduce using rule 94 (listaSentencias)
+    IF                       [reduce using rule 95 (listaSentencias)]
+    SWITCH                   reduce using rule 94 (listaSentencias)
+    SWITCH                   [reduce using rule 95 (listaSentencias)]
+    WHILE                    reduce using rule 94 (listaSentencias)
+    WHILE                    [reduce using rule 95 (listaSentencias)]
+    DO                       reduce using rule 94 (listaSentencias)
+    DO                       [reduce using rule 95 (listaSentencias)]
+    FOR                      reduce using rule 94 (listaSentencias)
+    FOR                      [reduce using rule 95 (listaSentencias)]
+    INCREMENTO_O_DECREMENTO  reduce using rule 94 (listaSentencias)
+    INCREMENTO_O_DECREMENTO  [reduce using rule 95 (listaSentencias)]
+    SIZEOF                   reduce using rule 94 (listaSentencias)
+    SIZEOF                   [reduce using rule 95 (listaSentencias)]
+    RETURN                   reduce using rule 94 (listaSentencias)
+    RETURN                   [reduce using rule 95 (listaSentencias)]
+    CARACTER                 reduce using rule 94 (listaSentencias)
+    CARACTER                 [reduce using rule 95 (listaSentencias)]
+    LITERAL_CADENA           reduce using rule 94 (listaSentencias)
+    LITERAL_CADENA           [reduce using rule 95 (listaSentencias)]
+    '-'                      reduce using rule 94 (listaSentencias)
+    '-'                      [reduce using rule 95 (listaSentencias)]
+    '*'                      reduce using rule 94 (listaSentencias)
+    '*'                      [reduce using rule 95 (listaSentencias)]
+    '&'                      reduce using rule 94 (listaSentencias)
+    '&'                      [reduce using rule 95 (listaSentencias)]
+    '!'                      reduce using rule 94 (listaSentencias)
+    '!'                      [reduce using rule 95 (listaSentencias)]
+    '('                      reduce using rule 94 (listaSentencias)
+    '('                      [reduce using rule 95 (listaSentencias)]
+    ';'                      reduce using rule 94 (listaSentencias)
+    ';'                      [reduce using rule 95 (listaSentencias)]
+    '{'                      reduce using rule 94 (listaSentencias)
+    '{'                      [reduce using rule 95 (listaSentencias)]
+    '}'                      reduce using rule 94 (listaSentencias)
+    '}'                      [reduce using rule 95 (listaSentencias)]
+    $default                 reduce using rule 94 (listaSentencias)
+
+
+state 115
+
+   93 sentencias_y_declaraciones: listaSentencias sentencias_y_declaraciones .
+
+    $default  reduce using rule 93 (sentencias_y_declaraciones)
+
+
+state 116
+
+   96 listaDeclaraciones: declaracionVarSimples .
+   97                   | listaDeclaraciones declaracionVarSimples .
+
+    error                    reduce using rule 96 (listaDeclaraciones)
+    error                    [reduce using rule 97 (listaDeclaraciones)]
+    ENTERO                   reduce using rule 96 (listaDeclaraciones)
+    ENTERO                   [reduce using rule 97 (listaDeclaraciones)]
+    REAL                     reduce using rule 96 (listaDeclaraciones)
+    REAL                     [reduce using rule 97 (listaDeclaraciones)]
+    ID                       reduce using rule 96 (listaDeclaraciones)
+    ID                       [reduce using rule 97 (listaDeclaraciones)]
+    TIPO_DATO                reduce using rule 96 (listaDeclaraciones)
+    TIPO_DATO                [reduce using rule 97 (listaDeclaraciones)]
+    IF                       reduce using rule 96 (listaDeclaraciones)
+    IF                       [reduce using rule 97 (listaDeclaraciones)]
+    SWITCH                   reduce using rule 96 (listaDeclaraciones)
+    SWITCH                   [reduce using rule 97 (listaDeclaraciones)]
+    WHILE                    reduce using rule 96 (listaDeclaraciones)
+    WHILE                    [reduce using rule 97 (listaDeclaraciones)]
+    DO                       reduce using rule 96 (listaDeclaraciones)
+    DO                       [reduce using rule 97 (listaDeclaraciones)]
+    FOR                      reduce using rule 96 (listaDeclaraciones)
+    FOR                      [reduce using rule 97 (listaDeclaraciones)]
+    INCREMENTO_O_DECREMENTO  reduce using rule 96 (listaDeclaraciones)
+    INCREMENTO_O_DECREMENTO  [reduce using rule 97 (listaDeclaraciones)]
+    SIZEOF                   reduce using rule 96 (listaDeclaraciones)
+    SIZEOF                   [reduce using rule 97 (listaDeclaraciones)]
+    RETURN                   reduce using rule 96 (listaDeclaraciones)
+    RETURN                   [reduce using rule 97 (listaDeclaraciones)]
+    CARACTER                 reduce using rule 96 (listaDeclaraciones)
+    CARACTER                 [reduce using rule 97 (listaDeclaraciones)]
+    LITERAL_CADENA           reduce using rule 96 (listaDeclaraciones)
+    LITERAL_CADENA           [reduce using rule 97 (listaDeclaraciones)]
+    '-'                      reduce using rule 96 (listaDeclaraciones)
+    '-'                      [reduce using rule 97 (listaDeclaraciones)]
+    '*'                      reduce using rule 96 (listaDeclaraciones)
+    '*'                      [reduce using rule 97 (listaDeclaraciones)]
+    '&'                      reduce using rule 96 (listaDeclaraciones)
+    '&'                      [reduce using rule 97 (listaDeclaraciones)]
+    '!'                      reduce using rule 96 (listaDeclaraciones)
+    '!'                      [reduce using rule 97 (listaDeclaraciones)]
+    '('                      reduce using rule 96 (listaDeclaraciones)
+    '('                      [reduce using rule 97 (listaDeclaraciones)]
+    ';'                      reduce using rule 96 (listaDeclaraciones)
+    ';'                      [reduce using rule 97 (listaDeclaraciones)]
+    '{'                      reduce using rule 96 (listaDeclaraciones)
+    '{'                      [reduce using rule 97 (listaDeclaraciones)]
+    '}'                      reduce using rule 96 (listaDeclaraciones)
+    '}'                      [reduce using rule 97 (listaDeclaraciones)]
+    $default                 reduce using rule 96 (listaDeclaraciones)
+
+
+state 117
+
+   92 sentencias_y_declaraciones: listaDeclaraciones sentencias_y_declaraciones .
+
+    $default  reduce using rule 92 (sentencias_y_declaraciones)
+
+
+state 118
+
+    9 declaracionDeFuncion: tipoDato ID '(' . argsFuncion ')' ';'
+   11                     | tipoDato ID '(' . argsFuncion ')' sentenciaCompuesta
+
+    TIPO_DATO  shift, and go to state 150
+
+    $default  reduce using rule 14 (argumentoA)
+
+    argsFuncion  go to state 153
+    argumentoA   go to state 152
+
+
+state 119
+
+   24 unaVarSimple: ID arreglo . inicializacion
+   29 arreglo: arreglo . '[' constante ']'
+
+    '='  shift, and go to state 154
+    '['  shift, and go to state 155
+
+    $default  reduce using rule 26 (inicializacion)
+
+    inicializacion  go to state 156
+
+
+state 120
+
+   19 finDeclaracionVariable: error .
+
+    $default  reduce using rule 19 (finDeclaracionVariable)
+
+
+state 121
+
+   23 listaVarSimples: listaVarSimples ',' . unaVarSimple
+
+    error  shift, and go to state 75
+    ID     shift, and go to state 108
+
+    unaVarSimple  go to state 157
+
+
+state 122
+
+   18 finDeclaracionVariable: ';' .
+
+    $default  reduce using rule 18 (finDeclaracionVariable)
+
+
+state 123
+
+   17 declaracionVarSimples: tipoDato listaVarSimples finDeclaracionVariable .
+
+    $default  reduce using rule 17 (declaracionVarSimples)
+
+
+state 124
+
+   41 expOr: expOr OR expAnd .
+   43 expAnd: expAnd . AND expIgualdad
+
+    AND  shift, and go to state 82
+
+    $default  reduce using rule 41 (expOr)
+
+
+state 125
+
+   52 expMultiplicativa: expUnaria .
+   58 expUnaria: expUnaria . INCREMENTO_O_DECREMENTO
+
+    INCREMENTO_O_DECREMENTO  shift, and go to state 91
+
+    $default  reduce using rule 52 (expMultiplicativa)
+
+
+state 126
+
+   39 expCondicional: expOr '?' expresion . ':' expCondicional
+
+    ':'  shift, and go to state 158
+
+
+state 127
+
+   43 expAnd: expAnd AND expIgualdad .
+   45 expIgualdad: expIgualdad . IGUAL_O_DISTINTO expRelacional
+
+    IGUAL_O_DISTINTO  shift, and go to state 83
+
+    $default  reduce using rule 43 (expAnd)
+
+
+state 128
+
+   45 expIgualdad: expIgualdad IGUAL_O_DISTINTO expRelacional .
+   47 expRelacional: expRelacional . MAYOR_O_IGUAL expAditiva
+   48              | expRelacional . MENOR_O_IGUAL expAditiva
+
+    MAYOR_O_IGUAL  shift, and go to state 84
+    MENOR_O_IGUAL  shift, and go to state 85
+
+    $default  reduce using rule 45 (expIgualdad)
+
+
+state 129
+
+   47 expRelacional: expRelacional MAYOR_O_IGUAL expAditiva .
+   50 expAditiva: expAditiva . '+' expMultiplicativa
+   51           | expAditiva . '-' expMultiplicativa
+
+    '+'  shift, and go to state 86
+    '-'  shift, and go to state 87
+
+    $default  reduce using rule 47 (expRelacional)
+
+
+state 130
+
+   48 expRelacional: expRelacional MENOR_O_IGUAL expAditiva .
+   50 expAditiva: expAditiva . '+' expMultiplicativa
+   51           | expAditiva . '-' expMultiplicativa
+
+    '+'  shift, and go to state 86
+    '-'  shift, and go to state 87
+
+    $default  reduce using rule 48 (expRelacional)
+
+
+state 131
+
+   50 expAditiva: expAditiva '+' expMultiplicativa .
+   53 expMultiplicativa: expMultiplicativa . '*' expUnaria
+   54                  | expMultiplicativa . '/' expUnaria
+   55                  | expMultiplicativa . '%' expUnaria
+
+    '*'  shift, and go to state 88
+    '/'  shift, and go to state 89
+    '%'  shift, and go to state 90
+
+    $default  reduce using rule 50 (expAditiva)
+
+
+state 132
+
+   51 expAditiva: expAditiva '-' expMultiplicativa .
+   53 expMultiplicativa: expMultiplicativa . '*' expUnaria
+   54                  | expMultiplicativa . '/' expUnaria
+   55                  | expMultiplicativa . '%' expUnaria
+
+    '*'  shift, and go to state 88
+    '/'  shift, and go to state 89
+    '%'  shift, and go to state 90
+
+    $default  reduce using rule 51 (expAditiva)
+
+
+state 133
+
+   53 expMultiplicativa: expMultiplicativa '*' expUnaria .
+   58 expUnaria: expUnaria . INCREMENTO_O_DECREMENTO
+
+    INCREMENTO_O_DECREMENTO  shift, and go to state 91
+
+    $default  reduce using rule 53 (expMultiplicativa)
+
+
+state 134
+
+   54 expMultiplicativa: expMultiplicativa '/' expUnaria .
+   58 expUnaria: expUnaria . INCREMENTO_O_DECREMENTO
+
+    INCREMENTO_O_DECREMENTO  shift, and go to state 91
+
+    $default  reduce using rule 54 (expMultiplicativa)
+
+
+state 135
+
+   55 expMultiplicativa: expMultiplicativa '%' expUnaria .
+   58 expUnaria: expUnaria . INCREMENTO_O_DECREMENTO
+
+    INCREMENTO_O_DECREMENTO  shift, and go to state 91
+
+    $default  reduce using rule 55 (expMultiplicativa)
+
+
+state 136
+
+   35 expAsignacion: expUnaria operAsignacion expAsignacion .
+
+    $default  reduce using rule 35 (expAsignacion)
+
+
+state 137
+
+   66 expPostFijo: expPostFijo '[' expresion . ']'
+
+    ']'  shift, and go to state 159
+
+
+state 138
+
+   68 listaArgumentos: expAsignacion .
+
+    $default  reduce using rule 68 (listaArgumentos)
+
+
+state 139
+
+   67 expPostFijo: expPostFijo aperturaParentesis listaArgumentos . cierreParentesis
+   69 listaArgumentos: listaArgumentos . ',' expAsignacion
+
+    ','  shift, and go to state 160
+    ')'  shift, and go to state 140
+
+    cierreParentesis  go to state 161
+
+
+state 140
+
+  109 cierreParentesis: ')' .
+
+    $default  reduce using rule 109 (cierreParentesis)
+
+
+state 141
+
+   73 expPrimaria: aperturaParentesis expresion cierreParentesis .
+
+    $default  reduce using rule 73 (expPrimaria)
+
+
+state 142
+
+   76 usoDeFuncion: ID aperturaParentesis listaParametros cierreParentesis .
+
+    $default  reduce using rule 76 (usoDeFuncion)
+
+
+state 143
+
+   79 listaParametros: parametro ',' . listaParametros
+
+    ENTERO          shift, and go to state 4
+    REAL            shift, and go to state 5
+    CARACTER        shift, and go to state 17
+    LITERAL_CADENA  shift, and go to state 99
+
+    $default  reduce using rule 77 (listaParametros)
+
+    listaParametros  go to state 162
+    parametro        go to state 101
+    constante        go to state 102
+
+
+state 144
+
+  102 sentenciaDeControl: IF aperturaParentesis expresion cierreParentesis . sentencia
+  103                   | IF aperturaParentesis expresion cierreParentesis . sentencia ELSE sentencia
+
+    error                    shift, and go to state 59
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    IF                       shift, and go to state 8
+    SWITCH                   shift, and go to state 9
+    WHILE                    shift, and go to state 10
+    DO                       shift, and go to state 11
+    FOR                      shift, and go to state 12
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    RETURN                   shift, and go to state 15
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+    ';'                      shift, and go to state 24
+    '{'                      shift, and go to state 25
+
+    expresion             go to state 31
+    expAsignacion         go to state 32
+    expCondicional        go to state 33
+    expOr                 go to state 34
+    expAnd                go to state 35
+    expIgualdad           go to state 36
+    expRelacional         go to state 37
+    expAditiva            go to state 38
+    expMultiplicativa     go to state 39
+    expUnaria             go to state 40
+    operUnario            go to state 41
+    expPostFijo           go to state 42
+    expPrimaria           go to state 43
+    usoDeFuncion          go to state 44
+    constante             go to state 45
+    sentencia             go to state 163
+    sentenciaCompuesta    go to state 47
+    sentenciaDeExpresion  go to state 48
+    sentenciaDeControl    go to state 49
+    sentenciaDeIteracion  go to state 50
+    aperturaParentesis    go to state 51
+    sentenciaDeSalto      go to state 52
+
+
+state 145
+
+  104 sentenciaDeControl: SWITCH aperturaParentesis expresion cierreParentesis . sentencia
+
+    error                    shift, and go to state 59
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    IF                       shift, and go to state 8
+    SWITCH                   shift, and go to state 9
+    WHILE                    shift, and go to state 10
+    DO                       shift, and go to state 11
+    FOR                      shift, and go to state 12
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    RETURN                   shift, and go to state 15
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+    ';'                      shift, and go to state 24
+    '{'                      shift, and go to state 25
+
+    expresion             go to state 31
+    expAsignacion         go to state 32
+    expCondicional        go to state 33
+    expOr                 go to state 34
+    expAnd                go to state 35
+    expIgualdad           go to state 36
+    expRelacional         go to state 37
+    expAditiva            go to state 38
+    expMultiplicativa     go to state 39
+    expUnaria             go to state 40
+    operUnario            go to state 41
+    expPostFijo           go to state 42
+    expPrimaria           go to state 43
+    usoDeFuncion          go to state 44
+    constante             go to state 45
+    sentencia             go to state 164
+    sentenciaCompuesta    go to state 47
+    sentenciaDeExpresion  go to state 48
+    sentenciaDeControl    go to state 49
+    sentenciaDeIteracion  go to state 50
+    aperturaParentesis    go to state 51
+    sentenciaDeSalto      go to state 52
+
+
+state 146
+
+  105 sentenciaDeIteracion: WHILE aperturaParentesis expresion cierreParentesis . sentencia
+
+    error                    shift, and go to state 59
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    IF                       shift, and go to state 8
+    SWITCH                   shift, and go to state 9
+    WHILE                    shift, and go to state 10
+    DO                       shift, and go to state 11
+    FOR                      shift, and go to state 12
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    RETURN                   shift, and go to state 15
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+    ';'                      shift, and go to state 24
+    '{'                      shift, and go to state 25
+
+    expresion             go to state 31
+    expAsignacion         go to state 32
+    expCondicional        go to state 33
+    expOr                 go to state 34
+    expAnd                go to state 35
+    expIgualdad           go to state 36
+    expRelacional         go to state 37
+    expAditiva            go to state 38
+    expMultiplicativa     go to state 39
+    expUnaria             go to state 40
+    operUnario            go to state 41
+    expPostFijo           go to state 42
+    expPrimaria           go to state 43
+    usoDeFuncion          go to state 44
+    constante             go to state 45
+    sentencia             go to state 165
+    sentenciaCompuesta    go to state 47
+    sentenciaDeExpresion  go to state 48
+    sentenciaDeControl    go to state 49
+    sentenciaDeIteracion  go to state 50
+    aperturaParentesis    go to state 51
+    sentenciaDeSalto      go to state 52
+
+
+state 147
+
+  106 sentenciaDeIteracion: DO sentencia WHILE aperturaParentesis . expresion cierreParentesis ';'
+
+    error                    shift, and go to state 65
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+
+    expresion           go to state 166
+    expAsignacion       go to state 32
+    expCondicional      go to state 33
+    expOr               go to state 34
+    expAnd              go to state 35
+    expIgualdad         go to state 36
+    expRelacional       go to state 37
+    expAditiva          go to state 38
+    expMultiplicativa   go to state 39
+    expUnaria           go to state 40
+    operUnario          go to state 41
+    expPostFijo         go to state 42
+    expPrimaria         go to state 43
+    usoDeFuncion        go to state 44
+    constante           go to state 45
+    aperturaParentesis  go to state 51
+
+
+state 148
+
+  107 sentenciaDeIteracion: FOR aperturaParentesis unaVarSimple ';' . expresion ';' expresion cierreParentesis sentencia
+
+    error                    shift, and go to state 65
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+
+    expresion           go to state 167
+    expAsignacion       go to state 32
+    expCondicional      go to state 33
+    expOr               go to state 34
+    expAnd              go to state 35
+    expIgualdad         go to state 36
+    expRelacional       go to state 37
+    expAditiva          go to state 38
+    expMultiplicativa   go to state 39
+    expUnaria           go to state 40
+    operUnario          go to state 41
+    expPostFijo         go to state 42
+    expPrimaria         go to state 43
+    usoDeFuncion        go to state 44
+    constante           go to state 45
+    aperturaParentesis  go to state 51
+
+
+state 149
+
+   60 expUnaria: SIZEOF aperturaParentesis TIPO_DATO cierreParentesis .
+
+    $default  reduce using rule 60 (expUnaria)
+
+
+state 150
+
+   15 argumentoA: TIPO_DATO . ID
+   16           | TIPO_DATO .
+
+    ID  shift, and go to state 168
+
+    $default  reduce using rule 16 (argumentoA)
+
+
+state 151
+
+    8 declaracionDeFuncion: VOID ID '(' argsFuncion . ')' ';'
+   10                     | VOID ID '(' argsFuncion . ')' sentenciaCompuesta
+
+    ')'  shift, and go to state 169
+
+
+state 152
+
+   12 argsFuncion: argumentoA .
+   13            | argumentoA . ',' argsFuncion
+
+    ','  shift, and go to state 170
+
+    $default  reduce using rule 12 (argsFuncion)
+
+
+state 153
+
+    9 declaracionDeFuncion: tipoDato ID '(' argsFuncion . ')' ';'
+   11                     | tipoDato ID '(' argsFuncion . ')' sentenciaCompuesta
+
+    ')'  shift, and go to state 171
+
+
+state 154
+
+   27 inicializacion: '=' . expresion
+
+    error                    shift, and go to state 65
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+
+    expresion           go to state 172
+    expAsignacion       go to state 32
+    expCondicional      go to state 33
+    expOr               go to state 34
+    expAnd              go to state 35
+    expIgualdad         go to state 36
+    expRelacional       go to state 37
+    expAditiva          go to state 38
+    expMultiplicativa   go to state 39
+    expUnaria           go to state 40
+    operUnario          go to state 41
+    expPostFijo         go to state 42
+    expPrimaria         go to state 43
+    usoDeFuncion        go to state 44
+    constante           go to state 45
+    aperturaParentesis  go to state 51
+
+
+state 155
+
+   29 arreglo: arreglo '[' . constante ']'
+
+    ENTERO    shift, and go to state 4
+    REAL      shift, and go to state 5
+    CARACTER  shift, and go to state 17
+
+    constante  go to state 173
+
+
+state 156
+
+   24 unaVarSimple: ID arreglo inicializacion .
+
+    $default  reduce using rule 24 (unaVarSimple)
+
+
+state 157
+
+   23 listaVarSimples: listaVarSimples ',' unaVarSimple .
+
+    $default  reduce using rule 23 (listaVarSimples)
+
+
+state 158
+
+   39 expCondicional: expOr '?' expresion ':' . expCondicional
+
+    error                    shift, and go to state 62
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+
+    expCondicional      go to state 174
+    expOr               go to state 34
+    expAnd              go to state 35
+    expIgualdad         go to state 36
+    expRelacional       go to state 37
+    expAditiva          go to state 38
+    expMultiplicativa   go to state 39
+    expUnaria           go to state 125
+    operUnario          go to state 41
+    expPostFijo         go to state 42
+    expPrimaria         go to state 43
+    usoDeFuncion        go to state 44
+    constante           go to state 45
+    aperturaParentesis  go to state 51
+
+
+state 159
+
+   66 expPostFijo: expPostFijo '[' expresion ']' .
+
+    $default  reduce using rule 66 (expPostFijo)
+
+
+state 160
+
+   69 listaArgumentos: listaArgumentos ',' . expAsignacion
+
+    error                    shift, and go to state 62
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+
+    expAsignacion       go to state 175
+    expCondicional      go to state 33
+    expOr               go to state 34
+    expAnd              go to state 35
+    expIgualdad         go to state 36
+    expRelacional       go to state 37
+    expAditiva          go to state 38
+    expMultiplicativa   go to state 39
+    expUnaria           go to state 40
+    operUnario          go to state 41
+    expPostFijo         go to state 42
+    expPrimaria         go to state 43
+    usoDeFuncion        go to state 44
+    constante           go to state 45
+    aperturaParentesis  go to state 51
+
+
+state 161
+
+   67 expPostFijo: expPostFijo aperturaParentesis listaArgumentos cierreParentesis .
+
+    $default  reduce using rule 67 (expPostFijo)
+
+
+state 162
+
+   79 listaParametros: parametro ',' listaParametros .
+
+    $default  reduce using rule 79 (listaParametros)
+
+
+state 163
+
+  102 sentenciaDeControl: IF aperturaParentesis expresion cierreParentesis sentencia .
+  103                   | IF aperturaParentesis expresion cierreParentesis sentencia . ELSE sentencia
+
+    ELSE  shift, and go to state 176
+
+    ELSE      [reduce using rule 102 (sentenciaDeControl)]
+    $default  reduce using rule 102 (sentenciaDeControl)
+
+
+state 164
+
+  104 sentenciaDeControl: SWITCH aperturaParentesis expresion cierreParentesis sentencia .
+
+    $default  reduce using rule 104 (sentenciaDeControl)
+
+
+state 165
+
+  105 sentenciaDeIteracion: WHILE aperturaParentesis expresion cierreParentesis sentencia .
+
+    $default  reduce using rule 105 (sentenciaDeIteracion)
+
+
+state 166
+
+  106 sentenciaDeIteracion: DO sentencia WHILE aperturaParentesis expresion . cierreParentesis ';'
+
+    ')'  shift, and go to state 140
+
+    cierreParentesis  go to state 177
+
+
+state 167
+
+  107 sentenciaDeIteracion: FOR aperturaParentesis unaVarSimple ';' expresion . ';' expresion cierreParentesis sentencia
+
+    ';'  shift, and go to state 178
+
+
+state 168
+
+   15 argumentoA: TIPO_DATO ID .
+
+    $default  reduce using rule 15 (argumentoA)
+
+
+state 169
+
+    8 declaracionDeFuncion: VOID ID '(' argsFuncion ')' . ';'
+   10                     | VOID ID '(' argsFuncion ')' . sentenciaCompuesta
+
+    ';'  shift, and go to state 179
+    '{'  shift, and go to state 25
+
+    sentenciaCompuesta  go to state 180
+
+
+state 170
+
+   13 argsFuncion: argumentoA ',' . argsFuncion
+
+    TIPO_DATO  shift, and go to state 150
+
+    $default  reduce using rule 14 (argumentoA)
+
+    argsFuncion  go to state 181
+    argumentoA   go to state 152
+
+
+state 171
+
+    9 declaracionDeFuncion: tipoDato ID '(' argsFuncion ')' . ';'
+   11                     | tipoDato ID '(' argsFuncion ')' . sentenciaCompuesta
+
+    ';'  shift, and go to state 182
+    '{'  shift, and go to state 25
+
+    sentenciaCompuesta  go to state 183
+
+
+state 172
+
+   27 inicializacion: '=' expresion .
+
+    $default  reduce using rule 27 (inicializacion)
+
+
+state 173
+
+   29 arreglo: arreglo '[' constante . ']'
+
+    ']'  shift, and go to state 184
+
+
+state 174
+
+   39 expCondicional: expOr '?' expresion ':' expCondicional .
+
+    $default  reduce using rule 39 (expCondicional)
+
+
+state 175
+
+   69 listaArgumentos: listaArgumentos ',' expAsignacion .
+
+    $default  reduce using rule 69 (listaArgumentos)
+
+
+state 176
+
+  103 sentenciaDeControl: IF aperturaParentesis expresion cierreParentesis sentencia ELSE . sentencia
+
+    error                    shift, and go to state 59
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    IF                       shift, and go to state 8
+    SWITCH                   shift, and go to state 9
+    WHILE                    shift, and go to state 10
+    DO                       shift, and go to state 11
+    FOR                      shift, and go to state 12
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    RETURN                   shift, and go to state 15
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+    ';'                      shift, and go to state 24
+    '{'                      shift, and go to state 25
+
+    expresion             go to state 31
+    expAsignacion         go to state 32
+    expCondicional        go to state 33
+    expOr                 go to state 34
+    expAnd                go to state 35
+    expIgualdad           go to state 36
+    expRelacional         go to state 37
+    expAditiva            go to state 38
+    expMultiplicativa     go to state 39
+    expUnaria             go to state 40
+    operUnario            go to state 41
+    expPostFijo           go to state 42
+    expPrimaria           go to state 43
+    usoDeFuncion          go to state 44
+    constante             go to state 45
+    sentencia             go to state 185
+    sentenciaCompuesta    go to state 47
+    sentenciaDeExpresion  go to state 48
+    sentenciaDeControl    go to state 49
+    sentenciaDeIteracion  go to state 50
+    aperturaParentesis    go to state 51
+    sentenciaDeSalto      go to state 52
+
+
+state 177
+
+  106 sentenciaDeIteracion: DO sentencia WHILE aperturaParentesis expresion cierreParentesis . ';'
+
+    ';'  shift, and go to state 186
+
+
+state 178
+
+  107 sentenciaDeIteracion: FOR aperturaParentesis unaVarSimple ';' expresion ';' . expresion cierreParentesis sentencia
+
+    error                    shift, and go to state 65
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+
+    expresion           go to state 187
+    expAsignacion       go to state 32
+    expCondicional      go to state 33
+    expOr               go to state 34
+    expAnd              go to state 35
+    expIgualdad         go to state 36
+    expRelacional       go to state 37
+    expAditiva          go to state 38
+    expMultiplicativa   go to state 39
+    expUnaria           go to state 40
+    operUnario          go to state 41
+    expPostFijo         go to state 42
+    expPrimaria         go to state 43
+    usoDeFuncion        go to state 44
+    constante           go to state 45
+    aperturaParentesis  go to state 51
+
+
+state 179
+
+    8 declaracionDeFuncion: VOID ID '(' argsFuncion ')' ';' .
+
+    $default  reduce using rule 8 (declaracionDeFuncion)
+
+
+state 180
+
+   10 declaracionDeFuncion: VOID ID '(' argsFuncion ')' sentenciaCompuesta .
+
+    $default  reduce using rule 10 (declaracionDeFuncion)
+
+
+state 181
+
+   13 argsFuncion: argumentoA ',' argsFuncion .
+
+    $default  reduce using rule 13 (argsFuncion)
+
+
+state 182
+
+    9 declaracionDeFuncion: tipoDato ID '(' argsFuncion ')' ';' .
+
+    $default  reduce using rule 9 (declaracionDeFuncion)
+
+
+state 183
+
+   11 declaracionDeFuncion: tipoDato ID '(' argsFuncion ')' sentenciaCompuesta .
+
+    $default  reduce using rule 11 (declaracionDeFuncion)
+
+
+state 184
+
+   29 arreglo: arreglo '[' constante ']' .
+
+    $default  reduce using rule 29 (arreglo)
+
+
+state 185
+
+  103 sentenciaDeControl: IF aperturaParentesis expresion cierreParentesis sentencia ELSE sentencia .
+
+    $default  reduce using rule 103 (sentenciaDeControl)
+
+
+state 186
+
+  106 sentenciaDeIteracion: DO sentencia WHILE aperturaParentesis expresion cierreParentesis ';' .
+
+    $default  reduce using rule 106 (sentenciaDeIteracion)
+
+
+state 187
+
+  107 sentenciaDeIteracion: FOR aperturaParentesis unaVarSimple ';' expresion ';' expresion . cierreParentesis sentencia
+
+    ')'  shift, and go to state 140
+
+    cierreParentesis  go to state 188
+
+
+state 188
+
+  107 sentenciaDeIteracion: FOR aperturaParentesis unaVarSimple ';' expresion ';' expresion cierreParentesis . sentencia
+
+    error                    shift, and go to state 59
+    ENTERO                   shift, and go to state 4
+    REAL                     shift, and go to state 5
+    ID                       shift, and go to state 6
+    IF                       shift, and go to state 8
+    SWITCH                   shift, and go to state 9
+    WHILE                    shift, and go to state 10
+    DO                       shift, and go to state 11
+    FOR                      shift, and go to state 12
+    INCREMENTO_O_DECREMENTO  shift, and go to state 13
+    SIZEOF                   shift, and go to state 14
+    RETURN                   shift, and go to state 15
+    CARACTER                 shift, and go to state 17
+    LITERAL_CADENA           shift, and go to state 18
+    '-'                      shift, and go to state 19
+    '*'                      shift, and go to state 20
+    '&'                      shift, and go to state 21
+    '!'                      shift, and go to state 22
+    '('                      shift, and go to state 23
+    ';'                      shift, and go to state 24
+    '{'                      shift, and go to state 25
+
+    expresion             go to state 31
+    expAsignacion         go to state 32
+    expCondicional        go to state 33
+    expOr                 go to state 34
+    expAnd                go to state 35
+    expIgualdad           go to state 36
+    expRelacional         go to state 37
+    expAditiva            go to state 38
+    expMultiplicativa     go to state 39
+    expUnaria             go to state 40
+    operUnario            go to state 41
+    expPostFijo           go to state 42
+    expPrimaria           go to state 43
+    usoDeFuncion          go to state 44
+    constante             go to state 45
+    sentencia             go to state 189
+    sentenciaCompuesta    go to state 47
+    sentenciaDeExpresion  go to state 48
+    sentenciaDeControl    go to state 49
+    sentenciaDeIteracion  go to state 50
+    aperturaParentesis    go to state 51
+    sentenciaDeSalto      go to state 52
+
+
+state 189
+
+  107 sentenciaDeIteracion: FOR aperturaParentesis unaVarSimple ';' expresion ';' expresion cierreParentesis sentencia .
+
+    $default  reduce using rule 107 (sentenciaDeIteracion)
