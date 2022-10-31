@@ -1,9 +1,13 @@
+/* ============================================================================================ */
+/* ======================== Funciones para el tratamiento de la TS ============================= */
+/* ============================================================================================ */
+
 #include "ts.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-ts *agregarEnTabla(char const *nombreId, char varOfn, char const *tipoDato)
+ts *agregarEnTabla(char const *nombreId, char varOfn, char const *tipoDato, int cod_asociado)
 {
   ts *ptr = (ts *)malloc(sizeof(ts));
   ptr->nombre = (char *)malloc(strlen(nombreId) + 1);
@@ -11,11 +15,13 @@ ts *agregarEnTabla(char const *nombreId, char varOfn, char const *tipoDato)
   ptr->tipo_dato = (char *)malloc(strlen(tipoDato) + 1);
   strcpy(ptr->tipo_dato, tipoDato);
   ptr->esVar = varOfn;
+  ptr->cod_asociado = cod_asociado;
   (ptr->argumentos).cabeza = NULL;
   ptr->siguiente = (struct ts *)tabla_simbolos;
   tabla_simbolos = ptr;
   return ptr;
 }
+
 ts *obtenerDeTabla(char const *nombreId, char varOfn)
 {
   ts *ptr;
@@ -42,25 +48,24 @@ int cantidadArgumentos(ts *t)
 {
   int i = 0;
   Item *aux;
-
   Lista *lista = &t->argumentos;
-
   for (aux = lista->cabeza; aux != NULL; aux = aux->siguiente)
   {
     i++;
   }
   return i;
 }
+
 void mostrarReporte()
 {
   reporteVariables();
   reporteFunciones();
+  reporteErrores(&noReconocidos);
 }
+
 void imprimirArgumentos(ts *t)
 {
-
   Item *aux;
-
   Lista *lista = &t->argumentos;
   printf("\t\tTipos de argumentos: ");
   for (aux = lista->cabeza; aux != NULL; aux = aux->siguiente)
@@ -69,6 +74,7 @@ void imprimirArgumentos(ts *t)
   }
   printf("\n");
 }
+
 void reporteFunciones()
 {
   ts *ptr;
@@ -78,11 +84,12 @@ void reporteFunciones()
     if (ptr->esVar == 'F')
     {
       int cantidad = cantidadArgumentos(ptr);
-      printf("\tIdentificador: %s | Tipo de retorno: %s | Cantidad de args: %i \n", ptr->nombre, ptr->tipo_dato, cantidad);
+      printf("\tIdentificador: %s | Tipo de dato de la funcion: %s | Cantidad de args: %i \n", ptr->nombre, ptr->tipo_dato, cantidad);
       imprimirArgumentos(ptr);
     }
   }
 }
+
 void reporteVariables()
 {
   ts *ptr;
@@ -95,8 +102,3 @@ void reporteVariables()
     }
   }
 }
-// void inicializarFunciones()
-// {
-//   agregarEnTabla(strdup("printf"), 'F', "void");
-
-// }

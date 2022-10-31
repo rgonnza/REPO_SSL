@@ -6,29 +6,28 @@
 
 enum
 {
-  cod_entero,
-  cod_literal_cadena,
-  cod_caracter,
-  cod_real,
-  cod_id
+  cod_entero = 0,
+  cod_caracter = 0,
+  cod_literal_cadena = 1,
+  cod_real = 0,
+  cod_void = 3
 };
 
 typedef struct ts
 {
-  char *nombre; // identificador de la variable o funcion
-  char esVar;   // 'V' si es variable, 'F' si es funcion
-  char *tipo_dato;
+  char *nombre;     // identificador de la variable o funcion
+  char esVar;       // 'V' si es variable, 'F' si es funcion
+  char *tipo_dato;  // Tipo de dato de la funcion o variable
+  int cod_asociado; // Para simplificar las validaciones. Por ej, a entero y float se los asigna el mismo codigo para operarlos
   Lista argumentos;
   struct ts *siguiente;
 } ts;
 
 extern ts *tabla_simbolos;
 
-// Declaración de la función putsym para agregar símbolo a la TS
-ts *agregarEnTabla(char const *, char, char const *); //(identificador, tipo)
-// Declaración de la función getsym para tomar un símbolo de la TS
-ts *obtenerDeTabla(char const *, char); // identificador
-// void *agregarArgumento(ts *, char const *, char const *);
-void realizarReporte();
+ts *agregarEnTabla(char const *, char, char const *, int);
+ts *obtenerDeTabla(char const *, char);
+void agregarArgumento(Lista *, char const *, char const *, int);
+int cantidadArgumentos(ts *);
 
 #endif

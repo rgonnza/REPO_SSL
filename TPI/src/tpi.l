@@ -1,12 +1,8 @@
 %{
-
 #include "tpi.tab.h"
 #include "ts.h"
 #include <stdio.h>
 #include <string.h>
-
-
-
 %}
 
 DIGITO_DECIMAL [0-9] 
@@ -17,7 +13,7 @@ CTE_OCTAL 0{DIGITO_OCTAL}*
 CTE_HEXADECIMAL 0[xX]{DIGITO_HEXADECIMAL}+
 CTE_REAL [0-9]*\.[0-9]+([Ee](\+|\-)?[0-9]*)?
 CTE_CARACTER \'[\x00-\x80]\'
-LITERAL_CADENA \".*\"
+LITERAL_CADENA \"[^\"]*\"
 COMENTARIO_LINEA_SIMPLE \/\/.*
 COMENTARIO_LINEAS_MULTIPLES [/][*][^*]*[*]+([^*/][^*]*[*]+)*[/] 
 PRINTF "printf"\(.*\)  
@@ -31,8 +27,9 @@ PRINTF "printf"\(.*\)
 {CTE_DECIMAL}|{CTE_OCTAL}|{CTE_HEXADECIMAL} {yylval.mystruct.entero = atoi(yytext); yylval.mystruct.tipo= cod_entero; return ENTERO;}
 {CTE_REAL} {yylval.mystruct.real = atof(yytext); yylval.mystruct.tipo=cod_real; return REAL;}
 {LITERAL_CADENA} {strcpy(yylval.mystruct.cadena,yytext); yylval.mystruct.tipo=cod_literal_cadena; return LITERAL_CADENA;}
-["unsigned "|"short "|"signed "]*int {strcpy(yylval.mystruct.cadena,yytext); yylval.mystruct.tipo=cod_entero; return TIPO_DATO;}            
+["short "]?["unsigned "|"signed "]?int {strcpy(yylval.mystruct.cadena,yytext); yylval.mystruct.tipo=cod_entero; return TIPO_DATO;}            
 ["long "]?double|float {strcpy(yylval.mystruct.cadena,yytext); yylval.mystruct.tipo=cod_real; return TIPO_DATO;}            
+"char *"|"char*"|"char * " {strcpy(yylval.mystruct.cadena,yytext); yylval.mystruct.tipo= cod_literal_cadena; return TIPO_DATO;}
 char {strcpy(yylval.mystruct.cadena,yytext); yylval.mystruct.tipo= cod_caracter; return TIPO_DATO;}
 void {strcpy(yylval.mystruct.cadena,yytext); return VOID;}
 if {strcpy(yylval.mystruct.cadena,yytext); return IF;}
@@ -49,7 +46,7 @@ return {strcpy(yylval.mystruct.cadena,yytext); return RETURN;}
 "++"|"--" {strcpy(yylval.mystruct.cadena,yytext); return INCREMENTO_O_DECREMENTO;}
 "&&" {strcpy(yylval.mystruct.cadena,yytext); return AND;}
 "||" {strcpy(yylval.mystruct.cadena,yytext); return OR;}
-[A-Za-z_][A-Za-z_0-9]* {strcpy(yylval.mystruct.cadena,yytext);yylval.mystruct.tipo=cod_id; return ID;}
+[A-Za-z_][A-Za-z_0-9]* {strcpy(yylval.mystruct.cadena,yytext); yylval.mystruct.esVar=0; return ID;}
 "+="|"-=" {strcpy(yylval.mystruct.cadena,yytext); return OPERADOR_ASIGNACION;}
 "="     {return '=';}
 ","     {return ',';}
@@ -73,4 +70,5 @@ return {strcpy(yylval.mystruct.cadena,yytext); return RETURN;}
 {COMENTARIO_LINEA_SIMPLE} /* se ignoran comentarios */
 {PRINTF}
 {COMENTARIO_LINEAS_MULTIPLES}
+.       { printf(" Error lexico : %d | secuencia %s \n ", yylineno, yytext); }
 %%
